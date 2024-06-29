@@ -1,0 +1,14 @@
+flask
+gunicorn
+gevent
+openpyxl
+psycopg2-binary
+python-dotenv
+orjsonl
+tqdm
+unsync
+
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+

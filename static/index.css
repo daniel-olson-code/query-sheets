@@ -1,0 +1,303 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #12121f;/*#f1f1f1;*/
+}
+
+button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 25px;
+}
+.btn-error {
+  background-color: #af4c4c; /* Green */
+}
+button:hover {
+    background-color: #3e8e41;
+}
+button:active {
+    background-color: #3e8e41;
+}
+button:focus {
+    background-color: #3e8e41;
+}
+button:disabled {
+    background-color: #4CAF50;
+}
+
+p, pre, h1, h2, h3, h4, h5, h6, th, td, label {
+    text-align: center;
+    /* font-size: 16px; */
+    text-decoration: none;
+    margin: 10px;
+    color: white;
+}
+
+p {
+    font-size: 16px;
+}
+
+.communication-text {
+    text-align: center;
+    font-size: 16px;
+    text-decoration: none;
+    margin: 10px;
+    color: white;
+}
+
+.container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    height: 100vh;
+    width: 100vw;
+}
+
+.wrapper {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: none;/*1px solid #dddddd*/;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #4CAF50;
+}
+
+.top-left-btn {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input[type=text], select, input[type=file] {
+  background-color: #fefefe;
+  color: darkslategrey;
+  border: none;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+.float-top-right {
+  position: absolute;
+  right: 0px;
+}
+
+.float-top-left {
+  position: absolute;
+  left: 0px;
+}
+
+  #editor {
+    /* position: absolute;
+    top: 3em;
+    right: 0;
+    bottom: 0;
+    left: 0; */
+    width: 50vw;
+    height: 50vh;
+
+    transition: all ease-in-out .1s;
+
+    animation-name: expandOnLoad;
+    animation-duration: 900ms;
+    animation-timing-function: cubic-bezier(.82,0,.26,1);
+    animation-iteration-count: initial;
+    animation-delay: 100ms;
+  }
+  
+  @keyframes expandOnLoad {
+    0% {
+      transform: scaleX(0);
+    }
+    50% {
+      opacity: 0;
+      transform: scaleX(.7);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+
+/* credit to: https://codepen.io/chrisamador/pen/qNYJLw */
+.screen {
+    position: fixed;
+    top: 65vh;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* background: tomato; */
+    background: #4CAF50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 10;
+  }
+  
+  .loader {
+    margin-top: 50px;
+    width: 100%;
+    height: 15px;
+    text-align: center;
+  }
+  
+  .dot {
+    position: relative;
+    width: 15px;
+    height: 15px;
+    margin: 0 2px;
+    display: inline-block;
+  }
+  
+  .dot:first-child:before {
+    animation-delay: 0ms;
+  }
+  
+  .dot:first-child:after {
+    animation-delay: 0ms;
+  }
+  
+  .dot:last-child:before {
+    animation-delay: 200ms;
+  }
+  
+  .dot:last-child:after {
+    animation-delay: 200ms;
+  }
+  
+  .dot:before{
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    background-color: blue;
+    animation-name: dotHover;
+    animation-duration: 900ms;
+    animation-timing-function: cubic-bezier(.82,0,.26,1);
+    animation-iteration-count: infinite;
+    animation-delay: 100ms;
+    background: white;
+    border-radius: 100%;  
+  }
+  
+  .dot:after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    background: black;
+    box-shadow: 0px 0px 1px black;
+    opacity: .20;
+    width: 100%;
+    height: 3px;
+    left: 0;
+    bottom: -2px;
+    border-radius: 100%;
+    animation-name: dotShadow;
+    animation-duration: 900ms;
+    animation-timing-function: cubic-bezier(.82,0,.26,1);
+    animation-iteration-count: infinite;
+    animation-delay: 100ms;
+  }
+  
+  @keyframes dotShadow {
+    0% {
+      transform: scaleX(1);
+    }
+    50% {
+      opacity: 0;
+      transform: scaleX(.6);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+  
+  @keyframes dotHover {
+    0% {
+      top: 0px;
+    }
+    50% {
+      top: -50px;
+      transform: scale(1.1);
+    }
+    100% {
+      top: 0;
+    }
+  }
+
+
+  /* The snackbar - position it at the bottom and in the middle of the screen */
+#toast {
+  visibility: hidden; /* Hidden by default. Visible on click */
+  min-width: 250px; /* Set a default minimum width */
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  background-color: #333; /* Black background color */
+  color: #fff; /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 11; /* Add a z-index if needed */
+  left: 50%; /* Center the snackbar */
+  bottom: 30px; /* 30px from the bottom */
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#toast.show {
+  visibility: visible; /* Show the snackbar */
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
