@@ -89,7 +89,11 @@ def set_query(query_name: str, query: str):
         conn.commit()
 
 
-def run_query(database_id: str, query: str, sub_query: str | None = None):
+def run_query(
+        database_id: str,
+        query: str,
+        sub_query: str | None = None
+) -> list[list] | dict[str, str]:
     """Execute a SQL query on the specified database.
 
     Args:
@@ -98,7 +102,11 @@ def run_query(database_id: str, query: str, sub_query: str | None = None):
         sub_query: An optional sub-query to execute first.
 
     Returns:
-        list: Query results as a list of lists, or a dict with an error message.
+        list[list]: A list of rows, where each row is a list of values.
+        dict[str, str]: An error message if there's an error executing the query.
+
+    Raises:
+        psycopg2.Error: If there's an error executing the database query.
     """
     if sub_query is None:
         database_params = get_database_params_from_id(database_id)
@@ -212,3 +220,37 @@ def get_database_ids():
         return [row[0] for row in cursor.fetchall()]
 
 
+def get_table_schema(database_id: str, table_name: str) -> list[dict] | dict[str, str]:
+    """Retrieve the schema (column names and data types) for a given table.
+
+    Args:
+        database_id: The ID of the database.
+        table_name: The name of the table.
+
+    Returns:
+        list: A list of dictionaries representing the table schema.
+        dict: An error message if the database or table does not exist.
+    """
+    if not database_exists(database_id):
+        return {'error': 'Database does not exist.'}
+
+    query = f'''
+    SELECT 
+        information_schema.columns.column_name::text, 
+        information_schema.columns.data_type::text
+    FROM information_schema.columns
+    WHERE information_schema.columns.table_name 
+        = '{table_name}' ORDER BY information_schema.columns.ordinal_position;
+    '''
+
+    result = run_query(database_id, query)
+
+    if isinstance(result, dict):
+        return result
+
+    table = [
+        {'name': row[0], 'data_type': row[1]}
+        for row in result[1:]
+    ]
+
+    return table
