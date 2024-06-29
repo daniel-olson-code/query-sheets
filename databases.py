@@ -5,32 +5,58 @@ executing queries, and handling saved queries.
 """
 
 import json
-import os
 import psycopg2
 import postgres
+import sqlite3
+
 
 # Global variables
-selected_database: str | None = None
-databases = {}
-DATABASE_PATH = 'databases.json'
-
-saved_queries = {'current': ''}
-SAVED_QUERIES_PATH = 'saved_queries.json'
+DATABASE_PATH = 'server.db'
 
 
-def load_saved_queries():
-    """Load saved queries from a JSON file."""
-    global saved_queries
-    if os.path.exists(SAVED_QUERIES_PATH):
-        with open(SAVED_QUERIES_PATH, 'r') as f:
-            saved_queries = json.load(f)
+def initialize_database():
+    """
+    Initialize the database by creating the necessary tables if they don't exist.
+    """
+    create_queries_table()
+    create_databases_table()
 
 
-def save_saved_queries():
-    """Save queries to a JSON file."""
-    global saved_queries
-    with open(SAVED_QUERIES_PATH, 'w') as f:
-        json.dump(saved_queries, f, indent=4)
+def create_queries_table():
+    """
+    Create the queries table if it doesn't exist.
+
+    If the table is newly created, it inserts a default query named 'current' with an empty query string.
+    """
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS queries (
+                name TEXT PRIMARY KEY,
+                query TEXT
+            )
+        """)
+        conn.commit()
+
+        # if there are not queries, insert a default one
+        cursor.execute("SELECT COUNT(*) FROM queries")
+        count = cursor.fetchone()[0]
+        if count == 0:
+            cursor.execute("INSERT INTO queries (name, query) VALUES ('current', '')")
+            conn.commit()
+
+
+def create_databases_table():
+    """Create the databases table if it doesn't exist."""
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS databases (
+                id TEXT PRIMARY KEY,
+                params TEXT
+            )
+        """)
+        conn.commit()
 
 
 def get_queries():
@@ -39,8 +65,15 @@ def get_queries():
     Returns:
         dict: A dictionary of saved queries.
     """
-    global saved_queries
-    return saved_queries
+    try:
+        with sqlite3.connect(DATABASE_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name, query FROM queries")
+            queries = cursor.fetchall()
+            return {name: query for name, query in queries}
+    except sqlite3.Error as e:
+        print(f"Error retrieving queries: {e}")
+        return {}
 
 
 def set_query(query_name: str, query: str):
@@ -50,9 +83,10 @@ def set_query(query_name: str, query: str):
         query_name: The name of the query.
         query: The SQL query string.
     """
-    global saved_queries
-    saved_queries[query_name] = query
-    save_saved_queries()
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO queries (name, query) VALUES (?, ?)", (query_name, query))
+        conn.commit()
 
 
 def run_query(database_id: str, query: str, sub_query: str | None = None):
@@ -112,24 +146,17 @@ def get_database_params_from_id(database_id: str) -> postgres.DatabaseParameters
 
     Returns:
         postgres.DatabaseParameters: The parameters for the specified database.
+
+    Raises ValueError if the database ID is not found.
     """
-    global databases
-    return postgres.DatabaseParameters(**databases[database_id])
-
-
-def load_databases():
-    """Load database configurations from a JSON file."""
-    global databases
-    if os.path.exists(DATABASE_PATH):
-        with open(DATABASE_PATH, 'r') as f:
-            databases = json.load(f)
-
-
-def save_databases():
-    """Save database configurations to a JSON file."""
-    global databases
-    with open(DATABASE_PATH, 'w') as f:
-        json.dump(databases, f, indent=4)
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT params FROM databases WHERE id = ?", (database_id,))
+        params = cursor.fetchone()
+        if params:
+            return postgres.DatabaseParameters(**json.loads(params[0]))
+        else:
+            raise ValueError(f"Database with ID '{database_id}' not found.")
 
 
 def set_database(database_id: str, database_params: postgres.DatabaseParameters):
@@ -139,9 +166,11 @@ def set_database(database_id: str, database_params: postgres.DatabaseParameters)
         database_id: The ID of the database.
         database_params: The parameters for the database.
     """
-    global databases
-    databases[database_id] = database_params.to_json()
-    save_databases()
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("INSERT OR REPLACE INTO databases (id, params) VALUES (?, ?)",
+                        (database_id, json.dumps(database_params.to_json())))
+        conn.commit()
 
 
 def remove_database(database_id: str):
@@ -150,9 +179,10 @@ def remove_database(database_id: str):
     Args:
         database_id: The ID of the database to remove.
     """
-    global databases
-    del databases[database_id]
-    save_databases()
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM databases WHERE id = ?", (database_id,))
+        conn.commit()
 
 
 def database_exists(database_id: str) -> bool:
@@ -164,8 +194,10 @@ def database_exists(database_id: str) -> bool:
     Returns:
         bool: True if the database exists, False otherwise.
     """
-    global databases
-    return database_id in databases
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1 FROM databases WHERE id = ?", (database_id, ))
+        return cursor.fetchone() is not None
 
 
 def get_database_ids():
@@ -174,129 +206,9 @@ def get_database_ids():
     Returns:
         list: A list of all database IDs.
     """
-    global databases
-    return list(databases.keys())
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM databases")
+        return [row[0] for row in cursor.fetchall()]
 
-# import json
-# import os
-# import psycopg2
-# import postgres
-#
-#
-# selected_database: str | None = None
-# databases = {}
-# DATABASE_PATH = 'databases.json'
-#
-#
-# saved_queries = {'current': ''}
-# SAVED_QUERIES_PATH = 'saved_queries.json'
-#
-#
-# def load_saved_queries():
-#     global saved_queries
-#     if os.path.exists(SAVED_QUERIES_PATH):
-#         with open(SAVED_QUERIES_PATH, 'r') as f:
-#             saved_queries = json.load(f)
-#
-#
-# def save_saved_queries():
-#     global saved_queries
-#     with open(SAVED_QUERIES_PATH, 'w') as f:
-#         json.dump(saved_queries, f, indent=4)
-#
-#
-# def get_queries():
-#     global saved_queries
-#     return saved_queries
-#
-#
-# def set_query(query_name: str, query: str):
-#     global saved_queries
-#     saved_queries[query_name] = query
-#     save_saved_queries()
-#
-#
-# def run_query(database_id: str, query: str, sub_query: str | None = None):
-#     if sub_query is None:
-#         database_params = get_database_params_from_id(database_id)
-#
-#         try:
-#             result = postgres.execute_query(database_params, query)
-#         except psycopg2.Error as e:
-#             return {'error': str(e)}
-#
-#         return [list(row) for row in result]
-#
-#     result = run_query(database_id, sub_query)
-#
-#     if isinstance(result, dict):
-#         return result
-#
-#     headers = result[0]
-#     table = result[1:]
-#     new_headers = []
-#     new_table = []
-#
-#     for row in table:
-#         q = query
-#         for k, v in zip(headers, row):
-#             key = '{{%s}}' % k
-#             while key in q:
-#                 q = q.replace(key, f'{v}')
-#
-#         result = run_query(database_id, q)
-#
-#         if isinstance(result, dict):
-#             return result
-#
-#         new_headers = result[0]
-#         new_table.extend(result[1:])
-#
-#     return [new_headers] + new_table
-#
-#
-# def get_database_params_from_id(database_id: str) -> postgres.DatabaseParameters:
-#     global databases
-#     return postgres.DatabaseParameters(**databases[database_id])
-#
-#
-# def load_databases():
-#     global databases
-#     if os.path.exists(DATABASE_PATH):
-#         with open(DATABASE_PATH, 'r') as f:
-#             databases = json.load(f)
-#
-#
-# def save_databases():
-#     global databases
-#     with open(DATABASE_PATH, 'w') as f:
-#         json.dump(databases, f, indent=4)
-#
-#
-# def set_database(database_id: str, database_params: postgres.DatabaseParameters):
-#     global databases
-#     databases[database_id] = database_params.to_json()
-#     save_databases()
-#
-#
-# def remove_database(database_id: str):
-#     global databases
-#     del databases[database_id]
-#     save_databases()
-#
-#
-# def database_exists(database_id: str) -> bool:
-#     global databases
-#     return database_id in databases
-#
-#
-# def get_database_ids():
-#     global databases
-#     return list(databases.keys())
-#
-#
-#
-#
-#
-#
-#
+

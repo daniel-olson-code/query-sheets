@@ -690,8 +690,7 @@ def initialize_backend():
 
     Loads database connection parameters and saved queries into memory
     """
-    databases.load_databases()
-    databases.load_saved_queries()
+    databases.initialize_database()
 
 
 def main():
