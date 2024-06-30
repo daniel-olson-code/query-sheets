@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top"/>
+    <meta charset="UTF-8" />
+    <title>Query Sheets</title>
+  </head>
+
+  <link rel="stylesheet" href="static/index.css">
+
+  <body>
+    <div id="root"></div>
+    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    
+    <script src="http://ajaxorg.github.io/ace-builds/src/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="http://ajaxorg.github.io/ace-builds/src/ext-modelist.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- for offline testing:  -->
+    <!--
+    <script src="static/react.development.js" crossorigin></script>
+    <script src="static/react-dom.development.js" crossorigin></script>
+    <script src="static/babel.min.js"></script>
+    
+    <script src="ace-code-editor/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="ace-code-editor/ext-modelist.js" type="text/javascript" charset="utf-8"></script>
+    -->
+
+    <script type="text/babel" src="static/prompting/index.js"></script>
+  </body>
+</html>

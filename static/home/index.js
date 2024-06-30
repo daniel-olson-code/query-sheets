@@ -1107,9 +1107,23 @@ const AuthorizeGoogleSheetsButton = ({canUseGoogleApi}) => {
   if(!canUseGoogleApi) return null;
 
   return (
-    <div className="float-top-left">
+    <div>
       <button onClick={authorizeGoogleSheets}>
         Authorize Google Sheets
+      </button>
+    </div>
+  );
+};
+
+/**
+ * A button component for making AI prompted queries.
+ * @return {React.Component} The rendered button component.
+ */
+const MakeAIPromptedButton = () => {
+  return (
+    <div>
+      <button onClick={() => {window.location.href = '/prompting';}}>
+        Make AI Prompted
       </button>
     </div>
   );
@@ -1164,10 +1178,15 @@ const App = () => {
 
   return (
     <div>
+      
       <Toast/>
       <WaitForResponseUI/>
       <CreateDatabaseButton creatingDatabase={creatingDatabase} toggleCreatingDatabase={toggleCreatingDatabase}/>
-      <AuthorizeGoogleSheetsButton canUseGoogleApi={canUseGoogleApi}/>
+      <div className='float-top-left'>
+        <AuthorizeGoogleSheetsButton canUseGoogleApi={canUseGoogleApi}/>
+        <MakeAIPromptedButton/>
+      </div>
+      <div className='margin-when-skinny'></div>
       {!creatingDatabase ? null : (
         <AddNewDatabase
           fetchDatabases={fetchDatabases}

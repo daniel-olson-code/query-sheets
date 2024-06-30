@@ -109,11 +109,13 @@ input[type=text], select, input[type=file] {
 .float-top-right {
   position: absolute;
   right: 0px;
+  top: 0px;
 }
 
 .float-top-left {
   position: absolute;
   left: 0px;
+  top: 0px;
 }
 
   #editor {
@@ -300,4 +302,31 @@ input[type=text], select, input[type=file] {
 @keyframes fadeout {
   from {bottom: 30px; opacity: 1;}
   to {bottom: 0; opacity: 0;}
+}
+
+.margin-when-skinny {
+  
+}
+
+@media (max-width: 1400px) {
+  .margin-when-skinny {
+    padding: 100px;
+  }
+}
+
+.user-prompt {
+  background-color: #272823;
+  color: white;
+  border: none;
+  font-size: medium;
+  width: 50vw; 
+  height: 15vh;
+}
+
+.prompt {
+  background-color: #272823;
+  color: white;
+  border: none;
+  width: 75vw; 
+  height: 25vh;
 }

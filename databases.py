@@ -253,4 +253,7 @@ def get_table_schema(database_id: str, table_name: str) -> list[dict] | dict[str
         for row in result[1:]
     ]
 
+    if not table:
+        return {'error': 'Table does not exist.'}
+
     return table

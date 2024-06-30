@@ -25,6 +25,7 @@ import json
 import os
 import uuid
 import traceback
+import string
 from typing import Any
 
 import flask
@@ -55,6 +56,7 @@ class ExcelUploadError(Exception):
     pass
 
 
+ALLOWED_TABLE_NAME_CHARS = string.ascii_letters + string.digits + ' _'
 UPLOAD_FOLDER = 'uploads'
 DOWNLOAD_FOLDER = 'downloads'
 STATIC_FOLDER = 'static'
@@ -90,6 +92,19 @@ def index():
     return flask.send_from_directory(
         app.config['STATIC_FOLDER'],
         os.path.join('home', 'index.html')
+    )
+
+
+@app.route('/prompting')
+def prompting():
+    """Serve the prompting page.
+
+    Returns:
+        flask.Response: The prompting page HTML.
+    """
+    return flask.send_from_directory(
+        app.config['STATIC_FOLDER'],
+        os.path.join('prompting', 'index.html')
     )
 
 
@@ -238,6 +253,10 @@ def remove_database():
     return flask.jsonify({'success': True})
 
 
+def valid_table_name(name: str):
+    return all(char in ALLOWED_TABLE_NAME_CHARS for char in name)
+
+
 @app.route('/table-schema', methods=['POST'])
 def get_table_schema():
     """Get the schema of a table in a database.
@@ -248,8 +267,11 @@ def get_table_schema():
         flask.Response: JSON response with the table schema or an error message.
     """
     data = flask.request.get_json()
-    if 'database_id' not in data or 'table_names' not in data:
+    if 'database_id' not in data or 'table_name' not in data:
         return flask.jsonify({'error': 'Missing required fields'}), 400
+
+    if not valid_table_name(data['table_name']):
+        return flask.jsonify({'error': f'"{data["table_name"]}" is not a valid table name.'})
 
     try:
         result = databases.get_table_schema(data['database_id'], data['table_name'])
