@@ -67,6 +67,7 @@ If you have benefited from this project and/or would like to see more features. 
 * `python3 main.py`
 
 #### For Non-Programmers
+In depth video walkthrough [here](https://youtu.be/8famBM3nqXw)
 * Download project
 * Open terminal to project directory
 * [Optional & HIGHLY RECOMMENDED] Set up python virtual environment
