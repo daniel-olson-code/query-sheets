@@ -27,16 +27,6 @@ const fetchApi = async (url, requestBody = {}) => {
 
   return response.json();
 };
-// const fetchApi = async (url, args) => {
-//     const response = await fetch(url, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(args || {})
-//     });
-//     return response.json();
-// }
 
 /**
  * Checks if the given value is a plain object.
@@ -47,7 +37,6 @@ const fetchApi = async (url, requestBody = {}) => {
 const isPlainObject = (value) => {
   return typeof value === 'object' && !Array.isArray(value) && value !== null;
 };
-// const isPlainObject = x => typeof x === 'object' && !Array.isArray(x) && x !== null;
 
 
 /**
@@ -112,30 +101,6 @@ const Table = ({
     </div>
   );
 };
-// const Table = props => {
-//   const {headers, rows, width='50%', height='50%', replaceRows, style} = props;
-
-//   return (
-//     <div style={{width: width, height: height, overflow: 'scroll', ...(style || {})}}>
-//       <table>
-//         <tr>
-//           {headers.map(h=><th>{h}</th>)}
-//         </tr>
-//         {rows.map((row, i) => <tr key={`table-${i}`}>
-//           {row.map((v, j)=>{
-//             if(isPlainObject(replaceRows)){
-//               if(Object.keys(replaceRows).map(v=>v).includes(`${j}`)) {
-//                 const El = replaceRows[`${j}`];
-//                 return <td>{<El row={headers.reduce((a, k, i)=>{a[k] = row[i];return a}, {})}/>}</td>
-//               }
-//             }
-//             return <td>{v}</td>
-//           })}
-//         </tr>)}
-//       </table>
-//     </div>
-//   )
-// }
 
 
 /**
@@ -158,10 +123,6 @@ const sanitizeTableName = (tableName) => {
   // Replace any non-alphanumeric characters with underscores
   return sanitizedName.replace(VALID_CHAR_REGEX, '_');
 };
-// const sanitizeTableName = (tableName) => {
-//   if ('1234567890'.includes(tableName[0])) tableName = '_' + tableName;
-//   return tableName.replace(/[^a-zA-Z0-9]/g, '_');
-// }
 
 
 
@@ -296,92 +257,6 @@ const Toast = () => {
     </div>
   );
 };
-// // Call events to start and stop waiting for a response. 
-// // Letting any element listen and change UI accordingly.
-// // This is set up dynamically so we can add a reset or any type of new event easily.
-// const loadingTypes = {
-//   addToWaitForResponse: 'addToWaitForResponse',
-//   removeToWaitForResponse: 'removeToWaitForResponse',
-//   toast: 'toast'
-// };
-
-// const loadingEvents = Object.keys(loadingTypes).reduce((acc, key) => {
-//   acc[key] = new Event(loadingTypes[key] );
-//   return acc;
-// }, {});
-
-// const dispatchLoadingEvent = loadingType => {
-//   // Dispatch the event.
-//   document.dispatchEvent(loadingType);
-// };
-
-// const addLoadingListener = (loadingType, func) => {
-//   document.addEventListener(loadingType, func, false);
-// }
-
-// const startWaitForResponse = () => {
-//   dispatchLoadingEvent(loadingEvents.addToWaitForResponse);
-// }
-
-// const stopWaitForResponse = () => {
-//   dispatchLoadingEvent(loadingEvents.removeToWaitForResponse);
-// }
-
-// const onResponseWaitStart = func => {
-//   addLoadingListener(loadingTypes.addToWaitForResponse, func);
-// }
-
-// const onResponseWaitEnd = func => {
-//   addLoadingListener(loadingTypes.removeToWaitForResponse, func);
-// }
-
-// const toastData = {message: ''};
-
-// const toast = msg => {
-//   toastData.message = msg;
-//   console.log('toast', msg);
-//   dispatchLoadingEvent(loadingEvents.toast);
-// }
-
-// const onToast = func => {
-//   const newFunc = () => {
-//     func(toastData.message);
-//   }
-//   addLoadingListener(loadingTypes.toast, newFunc);
-// }
-
-
-// const Toast = props => {
-//   const [message, setMessage] = React.useState('hello');
-//   const [className, setClassName] = React.useState('');
-
-//   // used to keep track of current pending toasts
-//   const toastCount = React.useRef({value: 0}).current;
-
-//   const displayToast = msg => {
-//     console.log(`got here with "${msg}"`)
-//     toastCount.value++;
-//     setMessage(msg);
-//     setClassName('show');
-//     setTimeout(()=>{
-//       toastCount.value--;
-//       // ensure to not clear values if there is another toast pending
-//       if(toastCount.value === 0) {
-//         setMessage('');
-//         setClassName('');
-//       }
-//     }, 3000);
-//   }
-
-//   React.useEffect(()=>{
-//     onToast(displayToast);
-//   }, [])
-
-//   return <div id='toast' className={className}>
-//     {message}
-//   </div>
-// }
-
 
 
 /**
@@ -452,47 +327,6 @@ const AddNewDatabase = ({ fetchDatabases, setCreatingDatabase }) => {
     </div>
   );
 };
-// const AddNewDataBase = props => {
-//   const {fetchDatabases, setCreatingDatabase} = props;
-//   const [newDatabase, setNewDatabase] = React.useState({
-//     id: 'My Cool Database',
-//     host: 'localhost',
-//     user: '',
-//     password: '',
-//     database: '',
-//     port: '5432',
-//   });
-//   return <div className='container'>
-//     <label> Name: </label>
-//     <input type='text' value={newDatabase.id} onChange={e=>setNewDatabase({...newDatabase, id: e.target.value || ''})}/>
-//     <label> Host: </label>
-//     <input type='text' value={newDatabase.host} onChange={e=>setNewDatabase({...newDatabase, host: e.target.value || ''})}/>
-//     <label> User: </label>
-//     <input type='text' value={newDatabase.user} onChange={e=>setNewDatabase({...newDatabase, user: e.target.value || ''})}/>
-//     <label> Password: </label>
-//     <input type='text' value={newDatabase.password} onChange={e=>setNewDatabase({...newDatabase, password: e.target.value || ''})}/>
-//     <label> Database: </label>
-//     <input type='text' value={newDatabase.database} onChange={e=>setNewDatabase({...newDatabase, database: (e.target.value || '').trim()})}/>
-    
-//     <label> Port: </label>
-//     <input type='text' value={newDatabase.port} onChange={e=>setNewDatabase({...newDatabase, port: (e.target.value || '').trim()})}/>
-//     <br/>
-//     <button className='btn' onClick={async ()=>{
-//       const data = await fetchApi('/append-database', newDatabase);
-//       fetchDatabases();
-//       setNewDatabase({
-//         id: 'My Cool Database',
-//         host: 'localhost',
-//         user: '',
-//         password: '',
-//         database: '',
-//         port: '5432',
-//       });
-//       setCreatingDatabase(false);
-//     }}>New Database</button>
-//   </div>
-// }
-
 
 
 /**
@@ -532,6 +366,11 @@ const UploadTable = ({databases, currentDatabase, setCurrentDatabase}) => {
           setXlsxSheetName(data.sheets[0]);
         }
       }
+      if(data.error) {
+        if(!data.csv) {
+          showToast(`error: ${data.error}`)
+        }
+      }
     } catch (error) {
       console.error('Error fetching sheets:', error);
       showToast('Failed to fetch sheets from the file');
@@ -555,7 +394,7 @@ const UploadTable = ({databases, currentDatabase, setCurrentDatabase}) => {
    * @return {!Promise<void>}
    */
   const onFileUpload = async () => {
-    if (!xlsxFile || !newDbTableName || !xlsxSheetName || !currentDatabase) {
+    if (!xlsxFile || !newDbTableName || !currentDatabase) {
       showToast(`Please select a table name, sheet name, database, and file`);
       return;
     }
@@ -644,123 +483,6 @@ const UploadTable = ({databases, currentDatabase, setCurrentDatabase}) => {
     </div>
   );
 };
-// /**
-//  * A component for uploading Excel files to a database table.
-//  * @param {!Object} props - The component props.
-//  * @param {!Array<string>} props.databases - List of available databases.
-//  * @param {string} props.currentDatabase - The currently selected database.
-//  * @param {function(string): void} props.setCurrentDatabase - Function to set the current database.
-//  * @return {!React.Component} The rendered upload form component.
-//  */
-// const UploadTable = React.forwardRef((props, ref) => {
-//   const {databases, currentDatabase, setCurrentDatabase} = props;
-//   const [xlsxFile, setXlsxFile] = React.useState(null);
-//   const [newDBTableName, setNewDBTableName] = React.useState('');
-//   const [xlsxSheetName, setXlsxSheetName] = React.useState('');
-//   const [sheets, setSheets] = React.useState([]);
-
-//   /**
-//    * Fetches and sets the list of sheets from the selected Excel file.
-//    * @return {!Promise<void>}
-//    */
-//   const checkFileSheets = async () => {
-//     if (xlsxFile) {
-//       const formData = new FormData();
-//       formData.append('file', xlsxFile);
-//       const result = await fetch('/get-xlsx-sheets', {
-//         method: 'POST',
-//         body: formData,
-//       });
-//       const data = await result.json();
-//       if (data.success) {
-//         setSheets(data.sheets);
-//         if (data.sheets.length > 0) {
-//           setXlsxSheetName(data.sheets[0]);
-//         }
-//       }
-//     }
-//   };
-
-//   React.useEffect(() => {
-//     checkFileSheets();
-//   }, [xlsxFile]);
-
-//   /**
-//    * Handles file selection change.
-//    * @param {!Event} event - The change event.
-//    */
-//   const onFileChange = (event) => {
-//     setXlsxFile(event.target.files[0]);
-//   };
-
-//   /**
-//    * Handles file upload to the server.
-//    * @return {!Promise<void>}
-//    */
-//   const onFileUpload = async () => {
-//     if (xlsxFile && newDBTableName && xlsxSheetName && currentDatabase) {
-//       try {
-//         startWaitForResponse();
-//         const formData = new FormData();
-//         formData.append('file', xlsxFile);
-//         const config = {
-//           database_id: currentDatabase,
-//           table_name: newDBTableName,
-//           sheet_name: xlsxSheetName,
-//         };
-//         const blob = new Blob([JSON.stringify(config)], {type: 'text/plain'});
-//         formData.append('config', blob, 'config.json');
-//         const result = await fetch('/upload-table', {
-//           method: 'POST',
-//           body: formData,
-//         });
-//         const data = await result.json();
-//         if (data.success) {
-//           showToast('File uploaded successfully');
-//         }
-//         if (data.error) {
-//           showToast(`Error: ${data.error}`);
-//         }
-//       } finally {
-//         stopWaitForResponse();
-//       }
-//     } else {
-//       showToast(`Please select a table name(${!!newDBTableName}), sheet name(${!!xlsxSheetName}), database(${!!currentDatabase}) and file(${!!xlsxFile})`);
-//     }
-//   };
-
-//   return (
-//     <div className="wrapper">
-//       <h3> Upload .xlsx, .xls or .xlsm to Database </h3>
-//       <br/>
-//       <div>
-//         <label>Database: </label>
-//         <select value={currentDatabase} onChange={(e) => setCurrentDatabase(e.target.value)}>
-//           {databases.map((val, i) => <option key={`database-${i}`} value={val}>{val}</option>)}
-//         </select>
-//         <br/>
-//         <label>Table Name: </label>
-//         <input type="text" value={newDBTableName} onChange={(e) => setNewDBTableName(sanitizeTableName(e.target.value || ''))} />
-//         <br/>
-//         <label>File: </label>
-//         <input type="file" onChange={onFileChange} />
-//         <br/>
-//         {sheets.length === 0 ? null : (
-//           <div>
-//             <label>Sheet Name: </label>
-//             <select value={xlsxSheetName} onChange={(e) => setXlsxSheetName(e.target.value)}>
-//               {sheets.map((val, i) => <option key={`sheet-${i}`} value={val}>{val}</option>)}
-//             </select>
-//             <br/>
-//           </div>
-//         )}
-//         <button className="btn" onClick={onFileUpload}>
-//           Upload!
-//         </button>
-//       </div>
-//     </div>
-//   );
-// });
 
 
 /**

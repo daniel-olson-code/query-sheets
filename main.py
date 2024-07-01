@@ -60,7 +60,9 @@ ALLOWED_TABLE_NAME_CHARS = string.ascii_letters + string.digits + ' _'
 UPLOAD_FOLDER = 'uploads'
 DOWNLOAD_FOLDER = 'downloads'
 STATIC_FOLDER = 'static'
-ALLOWED_EXTENSIONS = {'xlsx', 'xls', 'xlsm'}
+ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls', 'xlsm'}
+EXCEL_EXTENSIONS = {'xlsx', 'xls', 'xlsm'}
+CSV_EXTENSIONS = {'csv'}
 ERROR_MESSAGES = {
     'no_file': 'Request has no file part',
     'no_config': 'Request has no config part',
@@ -133,18 +135,29 @@ def process_excel_file(
 
     try:
         file.save(file_path)
-        sheets = excel_to_postgres.get_sheet_names_xlsx(file_path)
 
-        if config['sheet_name'] not in sheets:
-            raise ExcelUploadError(f'Sheet not found. Available ({", ".join(sheets)})')
+        if file_extension not in ALLOWED_EXTENSIONS:
+            sheets = excel_to_postgres.get_sheet_names_xlsx(file_path)
+            if config['sheet_name'] not in sheets:
+                raise ExcelUploadError(f'Sheet not found. Available ({", ".join(sheets)})')
 
         database_params = databases.get_database_params_from_id(database_id)
-        excel_to_postgres.xlsx_to_sql(
-            file_path,
-            config['sheet_name'],
-            config['table_name'],
-            database_params
-        )
+
+        if file_extension in EXCEL_EXTENSIONS:
+            excel_to_postgres.xlsx_to_sql(
+                file_path,
+                config['sheet_name'],
+                config['table_name'],
+                database_params
+            )
+        elif file_extension in CSV_EXTENSIONS:
+            excel_to_postgres.csv_to_sql(
+                file_path,
+                config['table_name'],
+                database_params
+            )
+        else:
+            raise ExcelUploadError(f'Unsupported file type: {file_extension}')
     finally:
         try:
             os.remove(file_path)
@@ -189,6 +202,7 @@ def upload_table() -> flask.Response | tuple[flask.Response, int]:
             raise ExcelUploadError(ERROR_MESSAGES['database_not_found'])
 
         process_excel_file(file, config_data, database_id)
+
         return flask.jsonify({'success': True})
 
     except ExcelUploadError as e:
