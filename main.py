@@ -26,6 +26,7 @@ import os
 import uuid
 import traceback
 import string
+import datetime
 from typing import Any
 
 import flask
@@ -123,7 +124,7 @@ def serve_static(filename: str):
     return flask.send_from_directory(app.config['STATIC_FOLDER'], filename)
 
 
-def process_excel_file(
+def process_table_file(
         file: werkzeug.datastructures.FileStorage,
         config: dict[str, str],
         database_id: str
@@ -201,7 +202,7 @@ def upload_table() -> flask.Response | tuple[flask.Response, int]:
         if not databases.database_exists(database_id):
             raise ExcelUploadError(ERROR_MESSAGES['database_not_found'])
 
-        process_excel_file(file, config_data, database_id)
+        process_table_file(file, config_data, database_id)
 
         return flask.jsonify({'success': True})
 
@@ -336,6 +337,20 @@ def handle_google_sheet(table:  list[list] | list[dict], data: dict[str, str]) -
     if 'spreadsheet_id' not in data or 'sheet_name' not in data:
         raise ValueError('Missing required fields (spreadsheet_id or sheet_name)')
 
+    for row in table:
+        if isinstance(row, list):
+            for i, value in enumerate(row):
+                if isinstance(value, datetime.datetime):
+                    row[i] = value.strftime('%Y-%m-%d %H:%M:%S')
+                elif isinstance(value, datetime.date):
+                    row[i] = value.strftime('%Y-%m-%d')
+        elif isinstance(row, dict):
+            for key, value in row.items():
+                if isinstance(value, datetime.datetime):
+                    row[key] = value.strftime('%Y-%m-%d %H:%M:%S')
+                elif isinstance(value, datetime.date):
+                    row[key] = value.strftime('%Y-%m-%d')
+
     spreadsheet_id = google_api.fix_spreadsheet_id_if_link(data['spreadsheet_id'])
     sheet_name = data['sheet_name']
 
@@ -424,6 +439,10 @@ def get_xlsx_sheets():
     if file and server_util.allowed_file(file.filename, ALLOWED_EXTENSIONS):
         filename = werkzeug.utils.secure_filename(file.filename)
         file_extension = server_util.get_file_extension(filename)
+
+        if file_extension in CSV_EXTENSIONS:
+            return flask.jsonify({'error': 'CSV files are not supported', 'csv': True})
+
         file_id = f'{uuid.uuid4()}-{uuid.uuid1()}'
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{file_id}.{file_extension}')
         try:
